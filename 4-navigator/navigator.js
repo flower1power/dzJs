@@ -4,7 +4,8 @@ const adressLong = 4;
 const positionLat = 7;
 const positionLong = 1;
 
-const Lat2 = Math.pow(adressLat - positionLat, 2);
-const Long2 = Math.pow(adressLong - positionLong, 2);
+const Lat2 = (adressLat - positionLat) ** 2;
+const Long2 = (adressLong - positionLong) ** 2;
 
-const result = Math.sqrt(Lat2 + Long2);
+const result = (Lat2 + Long2) ** (1 / 2);
+console.log(result);
