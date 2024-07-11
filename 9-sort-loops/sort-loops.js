@@ -1,25 +1,27 @@
 const array = [1, 40, -5, 10, 0];
-
-const sotr = (array, sort) => {
-  if (sort !== "positiv" && sort !== "negativ") {
-    return 'Выберите один из вариантов: "positiv" или "negativ"';
+const orderTemplate = (firstNumber, secondNumber, desc) => {
+  if (!desc) {
+    return firstNumber > secondNumber;
   }
 
-  const variant = sort === "positiv" ? (a, b) => a > b : (a, b) => a < b;
+  return firstNumber < secondNumber;
+};
 
-  for (let i = array.length - 1; i > 0; i--) {
+const sort = (array, desc = false) => {
+  const newArray = [...array];
+
+  for (let i = newArray.length - 1; i > 0; i--) {
     for (let j = 0; j < i; j++) {
-      if (variant(array[j], array[j + 1])) {
-        let temp = array[j];
-        array[j] = array[j + 1];
-        array[j + 1] = temp;
+      const isExchange = orderTemplate(newArray[j], newArray[j + 1], desc);
+      if (isExchange) {
+        [newArray[j], newArray[j + 1]] = [newArray[j + 1], newArray[j]];
       }
     }
   }
 
-  return array;
+  return newArray;
 };
 
-console.log(sotr(array, "positiv"));
-console.log(sotr(array, "negativ"));
-console.log(sotr(array, "other"));
+console.log(array);
+console.log("Отсортированный по возрастанию массив:", sort(array));
+console.log("Отсортированный по убыванию массив:", sort(array, true));
