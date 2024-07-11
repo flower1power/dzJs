@@ -7,66 +7,87 @@
 Возвращает число в новой валюте, если конвертация поддерживается, или null, если нет
 Ставки конвертации хранятся внутри функции
 */
+const ALLOW_CURRENCY_LIST = ["RUB", "EUR", "USD"];
+const USD = 91.33;
+const RUB = 1;
+const EUR = 112.33;
 
-const getExchangeRate = (fromCurrency, toCurrency) => {
-  let rate = 0;
-
-  switch (`${fromCurrency.toUpperCase()}_${toCurrency.toUpperCase()}`) {
-    case "RUB_USD":
-      rate = 0.03;
-      break;
-    case "RUB_EUR":
-      rate = 0.025;
-      break;
-    case "USD_RUB":
-      rate = 85;
-      break;
-    case "USD_EUR":
-      rate = 0.85;
-      break;
-    case "EUR_RUB":
-      rate = 100;
-      break;
-    case "EUR_USD":
-      rate = 1.18;
-      break;
-    default:
-      return null;
-  }
-
-  return rate;
-};
+function convertSum(sum, from, to) {
+  return ((sum * from) / to).toFixed(2);
+}
 
 const formatedCurrency = (toCurrency) => {
-  switch (toCurrency.toUpperCase()) {
+  switch (toCurrency) {
     case "USD":
       return "$";
-      break;
     case "EUR":
       return "€";
-      break;
     case "RUB":
       return "₽";
-      break;
     default:
       return;
   }
 };
 
-const conversionCurrency = (sumCurrency, fromCurrency, toCurrency) => {
-  const rate = getExchangeRate(fromCurrency, toCurrency);
-  const currency = formatedCurrency(toCurrency);
+function messageTemplate(value, icon) {
+  return `${value} ${icon}`;
+}
 
-  if (rate === null) {
+const conversionCurrency = (sumCurrency, fromCurrency, toCurrency) => {
+  fromCurrency = fromCurrency.toUpperCase();
+  toCurrency = toCurrency.toUpperCase();
+  const icon = formatedCurrency(toCurrency);
+
+  if (fromCurrency === toCurrency) {
+    return messageTemplate(sumCurrency, icon);
+  }
+  if (!ALLOW_CURRENCY_LIST.includes(fromCurrency)) {
+    console.log("Входящая валюта мне неизвестна");
+    return null;
+  }
+  if (!ALLOW_CURRENCY_LIST.includes(toCurrency)) {
+    console.log("Исходящая валюта мне неизвестна");
     return null;
   }
 
-  return currency === "₽"
-    ? `${sumCurrency * rate}${currency}`
-    : `${currency}${sumCurrency * rate}`;
+  let value = null;
+
+  switch (fromCurrency) {
+    case "USD":
+      switch (toCurrency) {
+        case "RUB":
+          value = convertSum(sumCurrency, USD, RUB);
+          break;
+        case "EUR":
+          value = convertSum(sumCurrency, USD, EUR);
+          break;
+      }
+    case "RUB":
+      switch (toCurrency) {
+        case "USD":
+          value = convertSum(sumCurrency, RUB, USD);
+          break;
+        case "EUR":
+          value = convertSum(sumCurrency, RUB, EUR);
+          break;
+      }
+      break;
+    case "EUR":
+      switch (toCurrency) {
+        case "RUB":
+          value = convertSum(sumCurrency, EUR, RUB);
+          break;
+        case "USD":
+          value = convertSum(sumCurrency, EUR, USD);
+          break;
+      }
+      break;
+  }
+
+  return messageTemplate(value, icon);
 };
 
 console.log(conversionCurrency(1000, "rub", "USD"));
 console.log(conversionCurrency(100, "USD", "RUB"));
 console.log(conversionCurrency(50, "EUR", "usd"));
-console.log(conversionCurrency(1000, "RUB", "JPY"));
+conversionCurrency(1000, "RUB", "JPY");
