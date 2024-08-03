@@ -13,15 +13,25 @@ const toDoList = {
     { title: "Name2", id: 2, priority: 1 },
   ],
 
-  add: function (title, priority) {
+  add: function (dataTask) {
+    if (!dataTask) {
+      return "Ошибка в переданных данных";
+    }
+
     const generateId = () => {
       return this.tasks.length + 1;
     };
 
-    this.tasks.push({ title, id: generateId(), priority });
+    dataTask.id = generateId();
+
+    this.tasks.push({ ...dataTask });
   },
 
   del: function (id) {
+    if (!id) {
+      return "Ошибка в переданных данных";
+    }
+
     const taskIndex = this.tasks.findIndex((task) => task.id === id);
     if (taskIndex === -1) {
       return console.log(`Задачи с id: ${id} не существует`);
@@ -30,19 +40,21 @@ const toDoList = {
     this.tasks.splice(taskIndex, 1);
   },
 
-  // использую обьект для того чтобы можно было выбирать определенный элемент без привязки к обязательности
-  update: function (id, { newTitle, newPriority }) {
+  update: function (id, dataTask) {
+    if (!id || !dataTask) {
+      return "Ошибка в переданных данных";
+    }
+
     const task = this.tasks.find((task) => task.id === id);
     if (!task) {
       return console.log(`Задачи с id: ${id} не существует`);
     }
 
-    if (newTitle) {
-      task.title = newTitle;
-    }
-    if (newPriority) {
-      task.priority = newPriority;
-    }
+    Object.keys(dataTask).forEach((key) => {
+      if (key !== "id") {
+        task[key] = dataTask[key];
+      }
+    });
   },
 
   sort: function (params = "id", isAscending = true) {
@@ -52,11 +64,12 @@ const toDoList = {
   },
 };
 
-toDoList.add("Name3", 5);
+// toDoList.add({ title: "Name3", priority: 5 });
 // toDoList.del(2);
-toDoList.update(3, { newPriority: 9 });
-toDoList.update(1, { newPriority: 6 });
-toDoList.sort("priority", false);
-toDoList.add("Name4", 8);
-toDoList.sort("id");
-toDoList.sort();
+// toDoList.update(null, { priority: 9 });
+// toDoList.update(1, { newPriority: 6 });
+// toDoList.sort("priority", false);
+// toDoList.add("Name4", 8);
+// toDoList.sort("id");
+// toDoList.sort();
+// console.log(toDoList.tasks);
