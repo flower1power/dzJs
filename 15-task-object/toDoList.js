@@ -9,79 +9,58 @@
 
 const toDoList = {
   tasks: [],
-  isValidData(data) {
-    if (!data) {
-      console.log("Данные не переданы");
-      return false;
-    }
-    if (typeof data !== "object") {
-      console.log("Переданные данные не являются объектом");
-      return false;
-    }
-    return true;
-  },
-  getTaskById(taskId) {
-    const task = this.tasks?.find(({ id }) => id === taskId) ?? null;
-    if (!task) {
-      console.log(`Задача с id ${taskId} еще не добавлена в ваш список дел.`);
-    }
-    return task;
-  },
   addTask(data) {
-    const isValid = this.isValidData(data);
-
-    if (!isValid) {
-      return this;
+    let message = `Ошибка входящих параметров`;
+    if (!data) {
+      return message;
     }
-    if (!this.tasks) {
-      this.tasks = [];
-    }
-    if (!this.lastId) {
-      this.lastId = 0;
-    }
+    const lastId = this.tasks.sort((a, b) => a.id - b.id).at(-1)?.id ?? 0;
+    data.id = lastId + 1;
+    this.tasks.push({ ...data });
+    message = `Задача с id: ${data.id} успешно добавлена`;
 
-    this.tasks.push({
-      ...data,
-      id: ++this.lastId,
-    });
-
-    return this;
+    return message;
   },
-  removeTask: function (id) {
-    const task = this.getTaskById(id);
-    if (task) {
-      console.log(`Задача с id ${id} успешно удалена.`);
-      this.tasks = this.tasks.filter((el) => el.id !== id);
+  removeTaskById(id) {
+    let message = "Ошибка входящих параметров";
+    if (!id) {
+      return message;
     }
-    return this;
+    const isExitsts = this.tasks.some((task) => task.id === id);
+    if (!isExitsts) {
+      message = `Задача с id: ${id} - не найдена`;
+      return message;
+    }
+    this.tasks = this.tasks.filter((task) => task.id !== id);
+    message = `Задача с id: ${id} - успешно удалена`;
+    return message;
   },
-
-  updateTask(id, newData) {
-    const isValid = this.isValidData(newData);
-    if (!isValid) {
-      return this;
+  updateTaskById(id, data) {
+    let message = `Ошибка входящих параметров`;
+    if (!id) {
+      return message;
     }
-    const task = this.getTaskById(id);
-
-    if (task) {
-      console.log(`Задача с id ${id} успешно обновлена.`);
-      Object.assign(task, { ...newData });
+    const index = this.tasks.findIndex((task) => task.id === id);
+    message = `Задача с id: ${id} -`;
+    if (index === -1) {
+      message = `${message} не найдена`;
+      return message;
     }
-    return this;
+
+    const messageArray = [];
+    for (const [key, value] of Object.entries(data)) {
+      if (value) {
+        messageArray.push(`${key} = ${value}`);
+      }
+    }
+
+    this.tasks[index] = { ...this.tasks[index], ...data };
+    message = `${message} обновлена, ${messageArray.join(", ")}`;
+    return message;
   },
-
-  sortTasks: function (desc = false, sortBy = "id") {
-    const ALLOW_KEYS = [...new Set(this.tasks.map(Object.keys).flat())];
-
-    if (!ALLOW_KEYS.includes(sortBy)) {
-      console.log(
-        `Нет такого ключа, доступные ключи: [${ALLOW_KEYS.join(", ")}]`,
-      );
-      return;
-    }
-
-    this.tasks.sort(({ [sortBy]: a }, { [sortBy]: b }) =>
-      desc ? b - a : a - b,
+  sortTasksById(descSort = false) {
+    return [...this.tasks].sort((task1, task2) =>
+      descSort ? task2.id - task1.id : task1.id - task2.id,
     );
   },
 };
@@ -89,12 +68,11 @@ const toDoList = {
 // toDoList.addTask({ title: "Name1", priority: 1 });
 // toDoList.addTask({ title: "Name2", priority: 5 });
 // toDoList.addTask({ title: "Name3", priority: 6 });
-// toDoList.removeTask(2);
-// toDoList.updateTask(null, { priority: 9 });
-// // toDoList.updateTask(1, { newPriority: 6 });
-// toDoList.updateTask(1, { priority: 9 });
-//
-// toDoList.sortTasks(true, "priority");
+// toDoList.removeTaskById(2);
+// console.log(toDoList.updateTaskById(null, { priority: 9 }));
+// toDoList.updateTaskById(1, { newPriority: 6 });
+// toDoList.updateTaskById(3, { priority: 9 });
+// console.log(toDoList.sortTasksById(true));
 
-console.log(toDoList.tasks);
+// console.log(toDoList.tasks);
 export default toDoList;
