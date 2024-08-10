@@ -66,6 +66,10 @@ h1 {
     color: red;
 }
 
+.error {
+    border: 1px solid red;
+}
+
 p {
     margin: 0;
 }

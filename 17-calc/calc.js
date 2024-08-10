@@ -1,8 +1,25 @@
 function getValue() {
-  const firstInt = Number(document.querySelector(".firstNumber").value);
-  const secondInt = Number(document.querySelector(".secondNumber").value);
+  const firstInt = document.querySelector(".firstNumber");
+  const secondInt = document.querySelector(".secondNumber");
 
-  return { firstInt, secondInt };
+  // Проверяем, заполнены ли поля
+  if (firstInt.value === "") {
+    firstInt.classList.add("error");
+  } else {
+    firstInt.classList.remove("error");
+  }
+
+  if (secondInt.value === "") {
+    secondInt.classList.add("error");
+  } else {
+    secondInt.classList.remove("error");
+  }
+
+  return {
+    firstInt: Number(firstInt.value),
+    secondInt: Number(secondInt.value),
+    valid: firstInt.value !== "" && secondInt.value !== "",
+  };
 }
 
 function clearValue() {
@@ -14,53 +31,54 @@ function reset() {
   clearValue();
   document.querySelector(".result").classList.remove("alert");
   document.querySelector(".result").textContent = "Итого: ";
+  document.querySelector(".firstNumber").classList.remove("error");
+  document.querySelector(".secondNumber").classList.remove("error");
 }
 
 function plus() {
   const data = getValue();
 
-  const result = data.firstInt + data.secondInt;
-
-  document.querySelector(".int").textContent = result.toString();
-
-  clearValue();
+  if (data.valid) {
+    const result = data.firstInt + data.secondInt;
+    document.querySelector(".int").textContent = result.toString();
+    clearValue();
+  }
 }
 
 function minus() {
   const data = getValue();
 
-  const result = data.firstInt - data.secondInt;
-
-  document.querySelector(".int").textContent = result.toString();
-
-  clearValue();
+  if (data.valid) {
+    const result = data.firstInt - data.secondInt;
+    document.querySelector(".int").textContent = result.toString();
+    clearValue();
+  }
 }
 
 function times() {
   const data = getValue();
 
-  const result = data.firstInt * data.secondInt;
-
-  document.querySelector(".int").textContent = result.toString();
-
-  clearValue();
+  if (data.valid) {
+    const result = data.firstInt * data.secondInt;
+    document.querySelector(".int").textContent = result.toString();
+    clearValue();
+  }
 }
 
 function divided() {
   const data = getValue();
 
-  if (data.secondInt === 0) {
-    document.querySelector(".result").classList.add("alert");
-    document.querySelector(".result").textContent = "На 0 делить нельзя :)";
-  } else {
-    if (data.firstInt % data.secondInt === 0) {
-      const result = data.firstInt / data.secondInt;
-      document.querySelector(".int").textContent = result.toString();
+  if (data.valid) {
+    if (data.secondInt === 0) {
+      document.querySelector(".result").classList.add("alert");
+      document.querySelector(".result").textContent = "На 0 делить нельзя :)";
     } else {
       const result = data.firstInt / data.secondInt;
-      document.querySelector(".int").textContent = result.toPrecision(2);
+      document.querySelector(".int").textContent =
+        data.firstInt % data.secondInt === 0
+          ? result.toString()
+          : result.toPrecision(2);
     }
+    clearValue();
   }
-
-  clearValue();
 }
