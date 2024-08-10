@@ -8,68 +8,93 @@
  */
 
 const toDoList = {
-  tasks: [
-    { title: "Name", id: 1, priority: 1 },
-    { title: "Name2", id: 2, priority: 1 },
-  ],
-
-  add: function (dataTask) {
-    if (!dataTask) {
-      return "Ошибка в переданных данных";
+  tasks: [],
+  isValidData(data) {
+    if (!data) {
+      console.log("Данные не переданы");
+      return false;
     }
-
-    const generateId = () => {
-      return this.tasks.length + 1;
-    };
-
-    dataTask.id = generateId();
-
-    this.tasks.push({ ...dataTask });
+    if (typeof data !== "object") {
+      console.log("Переданные данные не являются объектом");
+      return false;
+    }
+    return true;
   },
-
-  del: function (id) {
-    if (!id) {
-      return "Ошибка в переданных данных";
-    }
-
-    const taskIndex = this.tasks.findIndex((task) => task.id === id);
-    if (taskIndex === -1) {
-      return console.log(`Задачи с id: ${id} не существует`);
-    }
-
-    this.tasks.splice(taskIndex, 1);
-  },
-
-  update: function (id, dataTask) {
-    if (!id || !dataTask) {
-      return "Ошибка в переданных данных";
-    }
-
-    const task = this.tasks.find((task) => task.id === id);
+  getTaskById(taskId) {
+    const task = this.tasks?.find(({ id }) => id === taskId) ?? null;
     if (!task) {
-      return console.log(`Задачи с id: ${id} не существует`);
+      console.log(`Задача с id ${taskId} еще не добавлена в ваш список дел.`);
+    }
+    return task;
+  },
+  addTask(data) {
+    const isValid = this.isValidData(data);
+
+    if (!isValid) {
+      return this;
+    }
+    if (!this.tasks) {
+      this.tasks = [];
+    }
+    if (!this.lastId) {
+      this.lastId = 0;
     }
 
-    Object.keys(dataTask).forEach((key) => {
-      if (key !== "id") {
-        task[key] = dataTask[key];
-      }
+    this.tasks.push({
+      ...data,
+      id: ++this.lastId,
     });
+
+    return this;
+  },
+  removeTask: function (id) {
+    const task = this.getTaskById(id);
+    if (task) {
+      console.log(`Задача с id ${id} успешно удалена.`);
+      this.tasks = this.tasks.filter((el) => el.id !== id);
+    }
+    return this;
   },
 
-  sort: function (params = "id", isAscending = true) {
-    this.tasks.sort((a, b) =>
-      isAscending ? a[params] - b[params] : b[params] - a[params]
+  updateTask(id, newData) {
+    const isValid = this.isValidData(newData);
+    if (!isValid) {
+      return this;
+    }
+    const task = this.getTaskById(id);
+
+    if (task) {
+      console.log(`Задача с id ${id} успешно обновлена.`);
+      Object.assign(task, { ...newData });
+    }
+    return this;
+  },
+
+  sortTasks: function (desc = false, sortBy = "id") {
+    const ALLOW_KEYS = [...new Set(this.tasks.map(Object.keys).flat())];
+
+    if (!ALLOW_KEYS.includes(sortBy)) {
+      console.log(
+        `Нет такого ключа, доступные ключи: [${ALLOW_KEYS.join(", ")}]`,
+      );
+      return;
+    }
+
+    this.tasks.sort(({ [sortBy]: a }, { [sortBy]: b }) =>
+      desc ? b - a : a - b,
     );
   },
 };
 
-// toDoList.add({ title: "Name3", priority: 5 });
-// toDoList.del(2);
-// toDoList.update(null, { priority: 9 });
-// toDoList.update(1, { newPriority: 6 });
-// toDoList.sort("priority", false);
-// toDoList.add("Name4", 8);
-// toDoList.sort("id");
-// toDoList.sort();
-// console.log(toDoList.tasks);
+// toDoList.addTask({ title: "Name1", priority: 1 });
+// toDoList.addTask({ title: "Name2", priority: 5 });
+// toDoList.addTask({ title: "Name3", priority: 6 });
+// toDoList.removeTask(2);
+// toDoList.updateTask(null, { priority: 9 });
+// // toDoList.updateTask(1, { newPriority: 6 });
+// toDoList.updateTask(1, { priority: 9 });
+//
+// toDoList.sortTasks(true, "priority");
+
+console.log(toDoList.tasks);
+export default toDoList;
