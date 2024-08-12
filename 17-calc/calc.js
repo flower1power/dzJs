@@ -1,84 +1,88 @@
-function getValue() {
-  const firstInt = document.querySelector(".firstNumber");
-  const secondInt = document.querySelector(".secondNumber");
+const page = {
+  buttons: document.querySelector(".selectionsOperations"),
+  inputs: document.querySelector(".number"),
+  firstNumber: document.querySelector(".firstNumber"),
+  secondInt: document.querySelector(".secondNumber"),
+  result: document.querySelector(".int"),
+  error: document.querySelector(".result"),
+  selectButton: null,
+};
 
-  // Проверяем, заполнены ли поля
-  if (firstInt.value === "") {
-    firstInt.classList.add("error");
-  } else {
-    firstInt.classList.remove("error");
+function calc() {
+  const inputs = [...page.inputs.children];
+  const [input1, input2] = inputs.map((input) => Number(input.value));
+
+  if ((!input1 || isNaN(input1)) && input1 === 0) {
+    page.firstNumber.classList.add("error");
   }
 
-  if (secondInt.value === "") {
-    secondInt.classList.add("error");
-  } else {
-    secondInt.classList.remove("error");
+  if (!input2 || isNaN(input2)) {
+    page.secondInt.classList.add("error");
   }
 
-  return {
-    firstInt: Number(firstInt.value),
-    secondInt: Number(secondInt.value),
-    valid: firstInt.value !== "" && secondInt.value !== "",
-  };
+  if (!page.selectButton) {
+    const buttons = [...page.buttons.children];
+    buttons.map((button) => button.classList.add("error"));
+  }
+
+  const result = calculate(input1, input2, page.selectButton);
+
+  if (!isNaN(Number(result))) {
+    page.result.textContent = result;
+  }
+  page.selectButton = null;
 }
 
-function clearValue() {
-  document.querySelector(".firstNumber").value = "";
-  document.querySelector(".secondNumber").value = "";
+page.buttons.addEventListener("click", (event) => {
+  if (event.target.tagName !== "BUTTON") {
+    return;
+  }
+  const button = event.target;
+
+  if (button.classList.contains("error")) {
+    return;
+  }
+
+  clearButton();
+  selectButton(button);
+});
+
+function clearInput() {
+  const inputs = [...page.inputs.children];
+  inputs.map((input) => {
+    input.value = "";
+    input.classList.remove("error");
+  });
+}
+
+function clearButton() {
+  const buttons = [...page.buttons.children];
+  buttons.map((button) => {
+    button.classList.remove("active");
+    button.classList.remove("error");
+  });
 }
 
 function reset() {
-  clearValue();
-  document.querySelector(".result").classList.remove("alert");
-  document.querySelector(".result").textContent = "Итого: ";
-  document.querySelector(".firstNumber").classList.remove("error");
-  document.querySelector(".secondNumber").classList.remove("error");
+  clearInput();
+  clearButton();
+  page.result.textContent = "";
 }
 
-function plus() {
-  const data = getValue();
-
-  if (data.valid) {
-    const result = data.firstInt + data.secondInt;
-    document.querySelector(".int").textContent = result.toString();
-    clearValue();
-  }
+function selectButton(button) {
+  button.classList.add("active");
+  page.selectButton = button.innerText;
 }
 
-function minus() {
-  const data = getValue();
-
-  if (data.valid) {
-    const result = data.firstInt - data.secondInt;
-    document.querySelector(".int").textContent = result.toString();
-    clearValue();
-  }
-}
-
-function times() {
-  const data = getValue();
-
-  if (data.valid) {
-    const result = data.firstInt * data.secondInt;
-    document.querySelector(".int").textContent = result.toString();
-    clearValue();
-  }
-}
-
-function divided() {
-  const data = getValue();
-
-  if (data.valid) {
-    if (data.secondInt === 0) {
-      document.querySelector(".result").classList.add("alert");
-      document.querySelector(".result").textContent = "На 0 делить нельзя :)";
-    } else {
-      const result = data.firstInt / data.secondInt;
-      document.querySelector(".int").textContent =
-        data.firstInt % data.secondInt === 0
-          ? result.toString()
-          : result.toPrecision(2);
-    }
-    clearValue();
+function calculate(value1, value2, button) {
+  switch (button) {
+    case "+":
+      return value1 + value2;
+    case "-":
+      return value1 - value2;
+    case "*":
+      return value1 * value2;
+    case "/":
+      return value2 === 0 ? "На 0 делить нельзя" : value1 / value2;
   }
 }
